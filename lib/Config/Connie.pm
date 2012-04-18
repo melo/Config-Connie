@@ -6,11 +6,13 @@ package Config::Connie;
 
 use Config::Connie::Object;
 use Config::Connie::Client;
+use Config::Connie::Storage::Local;
 use Carp 'confess';
+use Scalar::Util 'weaken';
 
 
-############
-# Attributes
+#######################
+# App + Env identifiers
 
 has 'app' => (is => 'ro', default => sub { shift->default_app_name });
 has 'env' => (is => 'ro', default => sub { shift->default_app_env });
@@ -19,21 +21,16 @@ sub default_app_name { confess "Missing attr 'app'" }
 sub default_app_env  { confess "Missing attr 'env'" }
 
 
-has '_id' => (is => 'ro', default => sub { my ($s) = @_; __id($s->app, $s->env) });
+###############
+# App config ID
 
-sub __id { return join('.', @_) }
+has 'id' => (is => 'ro', default => sub { my ($s) = @_; _id($s->app, $s->env) });
 
-
-has 'client_class' => (is => 'ro', default => sub { shift->default_client_class });
-
-sub default_client_class {'Config::Connie::Client'}
+sub _id { return join('.', @_) }
 
 
-has 'storage' => (is => 'ro', required => 1);
-
-
-######################
-# Singleton management
+#######################
+# App config management
 
 {
   my %instances;
@@ -42,19 +39,75 @@ has 'storage' => (is => 'ro', required => 1);
     my $class = shift;
     my $self  = $class->new(@_);
 
-    $instances{$class} = $self if $class ne __PACKAGE__;
-    return $instances{ $self->_id } = $self;
+    $instances{class}{$class} = $self if $class ne __PACKAGE__;
+    return $instances{id}{ $self->id } = $self;
   }
 
-  sub client {
+  sub instance {
     my ($class, $app, $env) = @_;
-    my $key = ($app && $env) ? __id($app, $env) : $app? $app : $class;
 
-    return unless exists $instances{$key};
+    my ($key, $bd) = @_;
+    if ($app && $env) {
+      $key = _id($app, $env);
+      $bd = $instances{id};
+    }
+    elsif ($app) {
+      $key = $app;
+      $bd  = $instances{class};
+    }
+    else {
+      $key = $class;
+      $bd  = $instances{class};
+    }
 
-    my $self = $instances{$key};
-    return $self->client_class->new(instance => $self);
+    return unless exists $bd->{$key};
+    return $bd->{$key};
   }
+}
+
+
+###################
+# Client management
+
+has '_client_cache' => (
+  is => 'ro',
+
+# FIXME: simple version that would work if Mo::weaken existed
+#  default => sub { Config::Connie::Client->new(instance => $_[0]) },
+  default => sub {
+    ### HACK HACK HACK until we have Mo::weaken
+    my $cln = Config::Connie::Client->new(instance => $_[0]);
+    weaken($cln->{instance});
+    weaken($cln->storage->{client});
+
+    return $cln;
+  }
+);
+
+sub client {
+  my $self = shift;
+
+  $self = $self->instance(@_) unless ref $self;
+  return unless $self;
+
+  return $self->_client_cache;
+}
+
+
+####################
+# Storage management
+
+has 'storage_builder' => (is => 'ro');
+
+sub storage {
+  my ($self, $client) = @_;
+  my $stor = $self->storage_builder;
+
+  $stor = $stor->(client => $client) if $stor;
+  $stor = Config::Connie::Storage::Local->new(client => $client) unless $stor;
+  $stor->init;
+
+  return $stor;
 }
 
 

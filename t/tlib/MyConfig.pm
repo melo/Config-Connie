@@ -1,8 +1,7 @@
 package MyConfig;
 
 use Config::Connie::Object;
-use Config::Connie::Storage::Redis;
-use MyConfigClient;
+use MyStorageHelper;
 
 extends 'Config::Connie';
 
@@ -13,12 +12,10 @@ sub default_app_name {'my_app_name'}
 #   sub default_app_env  { $ENV{MYCONFIG_ENV} || 'devel'}
 sub default_app_env {'devel'}
 
-sub default_client_class {'MyConfigClient'}
-
 
 ## Register our client handle
 ## In this example we'll use the Redis storage backend
 
-MyConfig->register(storage => Config::Connie::Storage::Redis->new);
+MyConfig->register(storage_builder => sub { MyStorageHelper->new(@_) });
 
 1;
