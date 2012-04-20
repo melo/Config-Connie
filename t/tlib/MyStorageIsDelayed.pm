@@ -12,7 +12,7 @@ sub key_updated {
   push @{ $self->_queue }, [$k, $v];
 }
 
-sub send_updates {
+sub check_for_updates {
   my ($self) = @_;
   my $client = $self->client;
   my $queue  = $self->_queue;

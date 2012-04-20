@@ -11,8 +11,8 @@ has 'client' => (is => 'ro', required => 1);
 ######################
 # Lifecycle management
 
-sub init { }
-
+sub init              { }
+sub check_for_updates { }
 
 #######
 # Hooks

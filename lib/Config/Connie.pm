@@ -111,6 +111,14 @@ sub storage {
 }
 
 
+##################
+# Pool for updates
+
+sub check_for_updates {
+  shift->client->storage->check_for_updates(@_);
+}
+
+
 =encoding utf8
 
 =head1 SYNOPSIS

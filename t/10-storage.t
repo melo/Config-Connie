@@ -94,13 +94,16 @@ subtest 'slow storage' => sub {
   is($c->get('key'), undef, '... but local cache not updated when storage is down');
   is($notif_v,       undef, '... nor is a notification sent');
 
-  $c->storage->send_updates;
-  is($notif_v, 'value', 'Notification was received at last');
+  $i->check_for_updates;
+  is($notif_v, 'value', 'Notification was received after check_for_updates()');
 
   undef $notif_v;
   is($c->set_now('key', 'value2'), 'value2', 'set_now() also returns setted value');
   is($c->get('key'), 'value2', '... but local cache is updated immediatly, even with storage down');
   is($notif_v,       undef,    '... still, no notification is sent');
+
+  $i->check_for_updates;
+  is($notif_v, 'value2', 'Notification was received after check_for_updates()');
 };
 
 
