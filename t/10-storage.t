@@ -77,4 +77,31 @@ subtest 'config changes' => sub {
 };
 
 
+subtest 'slow storage' => sub {
+  require MyStorageIsDelayed;
+  my $i = Config::Connie->register(
+    app             => 'app_with_bad_storage',
+    env             => 'test',
+    storage_builder => sub { MyStorageIsDelayed->new(@_) },
+  );
+  my $c = $i->client;
+
+  my $notif_v;
+  $c->subscribe('key', sub { $notif_v = $_[2] });
+
+  is($c->get('key'), undef, 'get() returns undef for unknown keys');
+  is($c->set('key', 'value'), 'value', 'set() returns setted value');
+  is($c->get('key'), undef, '... but local cache not updated when storage is down');
+  is($notif_v,       undef, '... nor is a notification sent');
+
+  $c->storage->send_updates;
+  is($notif_v, 'value', 'Notification was received at last');
+
+  undef $notif_v;
+  is($c->set_now('key', 'value2'), 'value2', 'set_now() also returns setted value');
+  is($c->get('key'), 'value2', '... but local cache is updated immediatly, even with storage down');
+  is($notif_v,       undef,    '... still, no notification is sent');
+};
+
+
 done_testing();

@@ -26,13 +26,17 @@ sub get {
   return $cfg->{$k};
 }
 
-sub set {
-  my ($self, $k, $v) = @_;
+sub _set {
+  my ($self, $k, $v, $now) = @_;
 
+  $self->cfg->{$k} = $v if $now;
   $self->storage->key_updated($k, $v);
 
   return $v;
 }
+
+sub set { $_[0]->_set($_[1], $_[2]) }
+sub set_now { $_[0]->_set($_[1], $_[2], 1) }
 
 sub _update_key {
   my ($self, $k, $v) = @_;
