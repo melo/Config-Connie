@@ -130,4 +130,19 @@ subtest 'slow storage' => sub {
 };
 
 
+subtest 'one stop shop for config' => sub {
+  my $ci = MyConfig->instance;
+  $ci->default_for('xx' => 2);
+
+  my $c = $ci->client;
+
+  my $vg;
+  $c->config('xx' => sub { my ($v, undef, undef, $args) = @_; $vg = $v * $args->[0] }, 5);
+  is($vg, 10, 'config() callback called immediatly');
+
+  $c->set(xx => 3);
+  is($vg, 15, '... and after each set()');
+};
+
+
 done_testing();

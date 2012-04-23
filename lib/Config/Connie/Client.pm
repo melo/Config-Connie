@@ -95,4 +95,14 @@ sub _signal_subscribers {
 }
 
 
+#########################
+# One stop initialization
+
+sub config {
+  my ($self, $k, $cb, @rest) = @_;
+  $self->subscribe($k, $cb, @rest);
+  my $v = $self->get($k);
+  $cb->($v, $k, $self, \@rest);
+}
+
 1;
