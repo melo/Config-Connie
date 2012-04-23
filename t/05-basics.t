@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use lib 't/tlib';
 use Test::More;
+use Test::Deep;
 use Test::Fatal;
 use Config::Connie;
 use Scalar::Util ();
@@ -65,6 +66,30 @@ subtest 'bad register calls' => sub {
     exception { $cc->register(app => 'app', storage => {}) },
     qr{^Missing attr 'env'},
     'No env attr given'
+  );
+};
+
+
+subtest 'defaults' => sub {
+  my $ci = Config::Connie->register(
+    app      => 'defaults_app',
+    env      => 'test',
+    defaults => { 'type1' => { a => 1, b => 2 } }
+  );
+  cmp_deeply($ci->default_for('type1'), { a => 1, b => 2 }, 'Defauts via register() work');
+
+  $ci->default_for('type1', { c => 3, d => 4 });
+  cmp_deeply(
+    $ci->default_for('type1'),
+    { c => 3, d => 4 },
+    '... and we can update them via default_for()'
+  );
+
+  $ci->default_for('type2', { x => 0, y => 99 });
+  cmp_deeply(
+    $ci->default_for('type2'),
+    { x => 0, y => 99 },
+    'Defaults created with $self->default_for() work fine'
   );
 };
 

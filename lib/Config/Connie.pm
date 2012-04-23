@@ -111,6 +111,21 @@ sub storage {
 }
 
 
+#####################
+# Defaults management
+
+has 'defaults' => (is => 'ro', default => sub { {} });
+
+sub default_for {
+  my ($self, $k, $def) = @_;
+  my $defs = $self->defaults;
+
+  return $defs->{$k} = $def if defined $def;
+  return $defs->{$k} if exists $defs->{$k};
+  return;
+}
+
+
 ##################
 # Pool for updates
 
