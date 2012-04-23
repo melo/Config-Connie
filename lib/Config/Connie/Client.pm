@@ -87,7 +87,7 @@ sub _signal_subscribers {
 
   return unless exists $subs->{k}{$k};
   for my $cb (values %{ $subs->{k}{$k} }) {
-    $cb->($self, $k, $v);
+    $cb->($v, $k, $self);
   }
 
   return;
