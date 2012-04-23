@@ -22,8 +22,8 @@ sub get {
   my ($self, $k) = @_;
   my $cfg = $self->cfg;
 
-  return unless exists $cfg->{$k};
-  return $cfg->{$k};
+  return $cfg->{$k} if exists $cfg->{$k};
+  return $self->instance->default_for($k);
 }
 
 sub _set {

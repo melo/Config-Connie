@@ -91,6 +91,12 @@ subtest 'defaults' => sub {
     { x => 0, y => 99 },
     'Defaults created with $self->default_for() work fine'
   );
+
+  my $c = $ci->client;
+  cmp_deeply($c->get('type1'), { c => 3, d => 4 }, 'client get() uses the defaults');
+
+  $c->set('type1', { e => 5, f => 6 });
+  cmp_deeply($c->get('type1'), { e => 5, f => 6 }, 'set()`ed values override the defaults');
 };
 
 
