@@ -45,14 +45,21 @@ subtest 'config changes' => sub {
   cmp_deeply($cfg2, { kv => { 'x1' => 'y3' }, cln => $c }, '... all subscribers are called');
 
   my $cfg3;
-  my $cb3 = sub { my ($v, $k, $cln) = @_; $cfg3 = { kv => { $k => $v }, cln => $cln } };
-  my $id3 = $c->subscribe('y1' => $cb3);
+  my $cb3 = sub {
+    my ($v, $k, $cln, $rest) = @_;
+    $cfg3 = { kv => { $k => $v }, cln => $cln, rest => $rest };
+  };
+  my $id3 = $c->subscribe('y1' => $cb3, { t => 1, r => 2 });
   ok($id3, 'subscribe() returns a true subscription ID');
 
   $c->set('y1' => 'z1');
   cmp_deeply($cfg1, { kv => { 'x1' => 'y3' }, cln => $c }, 'set() only calls...');
   cmp_deeply($cfg2, { kv => { 'x1' => 'y3' }, cln => $c }, '...  registered subscribers ...');
-  cmp_deeply($cfg3, { kv => { 'y1' => 'z1' }, cln => $c }, '...  that match our key');
+  cmp_deeply(
+    $cfg3,
+    { kv => { 'y1' => 'z1' }, cln => $c, rest => [{ t => 1, r => 2 }] },
+    '...  that match our key'
+  );
 
   is($c->unsubscribe($id2), $cb2,  'unsubscribe() returns the callback');
   is($c->unsubscribe($id2), undef, '... or undef if subscription ID is not valid/found');
@@ -60,21 +67,33 @@ subtest 'config changes' => sub {
   $c->set('x1' => 'y4');
   cmp_deeply($cfg1, { kv => { 'x1' => 'y4' }, cln => $c }, 'set() only calls...');
   cmp_deeply($cfg2, { kv => { 'x1' => 'y3' }, cln => $c }, '...  active subscribers ...');
-  cmp_deeply($cfg3, { kv => { 'y1' => 'z1' }, cln => $c }, '...  that match our key');
+  cmp_deeply(
+    $cfg3,
+    { kv => { 'y1' => 'z1' }, cln => $c, rest => [{ t => 1, r => 2 }] },
+    '...  that match our key'
+  );
 
   is($c->unsubscribe($id1), $cb1, 'unsubscribe() returns the callback, again');
 
   $c->set('x1' => 'y5');
   cmp_deeply($cfg1, { kv => { 'x1' => 'y4' }, cln => $c }, 'set() only calls...');
   cmp_deeply($cfg2, { kv => { 'x1' => 'y3' }, cln => $c }, '...  active subscribers ...');
-  cmp_deeply($cfg3, { kv => { 'y1' => 'z1' }, cln => $c }, '...  that match our key');
+  cmp_deeply(
+    $cfg3,
+    { kv => { 'y1' => 'z1' }, cln => $c, rest => [{ t => 1, r => 2 }] },
+    '...  that match our key'
+  );
 
   is($c->unsubscribe($id3), $cb3, 'unsubscribe() returns the callback, again');
 
   $c->set('y1' => 'z2');
   cmp_deeply($cfg1, { kv => { 'x1' => 'y4' }, cln => $c }, 'set() only calls...');
   cmp_deeply($cfg2, { kv => { 'x1' => 'y3' }, cln => $c }, '...  active subscribers ...');
-  cmp_deeply($cfg3, { kv => { 'y1' => 'z1' }, cln => $c }, '...  that match our key');
+  cmp_deeply(
+    $cfg3,
+    { kv => { 'y1' => 'z1' }, cln => $c, rest => [{ t => 1, r => 2 }] },
+    '...  that match our key'
+  );
 
   ### Just make sure we cleanup after ourselfs
   cmp_deeply($c->_subs, { i => {}, k => {} }, 'subscription database is empty');

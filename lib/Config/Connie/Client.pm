@@ -57,10 +57,10 @@ has '_subs' => (is => 'ro', default => sub { {} });
   my $sub_id = 0;
 
   sub subscribe {
-    my ($self, $k, $cb) = @_;
+    my ($self, $k, $cb, @rest) = @_;
     my $subs = $self->_subs;
 
-    $subs->{k}{$k}{ ++$sub_id } = $cb;
+    $subs->{k}{$k}{ ++$sub_id } = [$cb, \@rest];
     $subs->{i}{$sub_id} = $k;
 
     return $sub_id;
@@ -78,7 +78,7 @@ sub unsubscribe {
   my $cb = delete $ks->{$sub_id};
   delete $subs->{k}{$k} unless %$ks;
 
-  return $cb;
+  return $cb->[0];
 }
 
 sub _signal_subscribers {
@@ -86,8 +86,9 @@ sub _signal_subscribers {
   my $subs = $self->_subs;
 
   return unless exists $subs->{k}{$k};
-  for my $cb (values %{ $subs->{k}{$k} }) {
-    $cb->($v, $k, $self);
+  for my $item (values %{ $subs->{k}{$k} }) {
+    my ($cb, $rest) = @$item;
+    $cb->($v, $k, $self, $rest);
   }
 
   return;
