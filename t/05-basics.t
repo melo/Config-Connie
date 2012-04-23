@@ -6,7 +6,7 @@ use lib 't/tlib';
 use Test::More;
 use Test::Fatal;
 use Config::Connie;
-use Scalar::Util 'blessed';
+use Scalar::Util ();
 
 my $cc = 'Config::Connie';
 
@@ -15,12 +15,12 @@ subtest 'direct registry' => sub {
 
   my $cci = $cc->register(app => 'a', env => 'e');
   ok($cci, 'Got something out of Connie->register()');
-  is(blessed($cci), $cc, "... a $cc object");
+  is(Scalar::Util::blessed($cci), $cc, "... a $cc object");
   is($cc->instance('a' => 'e'), $cci, 'instance() returns same object');
 
   my $ccc = $cc->client('a' => 'e');
   ok($ccc, 'Got something out of Connie->client() now');
-  is(blessed($ccc), 'Config::Connie::Client', "... a ::Client object");
+  is(Scalar::Util::blessed($ccc), 'Config::Connie::Client', "... a ::Client object");
   is($ccc->instance, $cci, '... linked to the proper Connie instance');
   is($cci->client, $ccc, '->client() to Connie instance, returns same client object');
 
@@ -28,7 +28,11 @@ subtest 'direct registry' => sub {
   is($ccc->env, $cci->env, '... same env attr');
   is($ccc->id,  $cci->id,  '... and same id attr');
 
-  is(blessed($ccc->storage), 'Config::Connie::Storage::Local', 'Storage attr has default helper');
+  is(
+    Scalar::Util::blessed($ccc->storage),
+    'Config::Connie::Storage::Local',
+    'Storage attr has default helper'
+  );
 };
 
 
@@ -40,18 +44,18 @@ subtest 'app class registry' => sub {
   ok($mc, 'Found App config client now');
   my $mci = $mc->instance;
   ok($mci, '... has a Connie instance');
-  is(blessed($mci),             'MyConfig', '... with the proper type');
+  is(Scalar::Util::blessed($mci), 'MyConfig', '... with the proper type');
   is($cc->instance('MyConfig'), $mci,       '... same instance we get from Connie->instance');
 
   my $mca = $cc->client($mci->app, $mci->env);
   ok($mca, 'Found App config client via app/env combo');
 
   my $mcai = $mca->instance;
-  is(blessed($mcai), 'MyConfig', '... with the proper type');
+  is(Scalar::Util::blessed($mcai), 'MyConfig', '... with the proper type');
 
   is($mcai, $mci, 'In fact, they are the same object');
 
-  is(blessed($mci->storage), 'MyStorageHelper', 'Expected custom storage object');
+  is(Scalar::Util::blessed($mci->storage), 'MyStorageHelper', 'Expected custom storage object');
 };
 
 
