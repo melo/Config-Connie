@@ -22,7 +22,7 @@ subtest 'direct registry' => sub {
   ok($ccc, 'Got something out of Connie->client() now');
   is(Scalar::Util::blessed($ccc), 'Config::Connie::Client', "... a ::Client object");
   is($ccc->instance, $cci, '... linked to the proper Connie instance');
-  is($cci->client, $ccc, '->client() to Connie instance, returns same client object');
+  is($cci->client,   $ccc, '->client() to Connie instance, returns same client object');
 
   is($ccc->app, $cci->app, 'Client and Connie instance have same app attr');
   is($ccc->env, $cci->env, '... same env attr');
@@ -45,7 +45,7 @@ subtest 'app class registry' => sub {
   my $mci = $mc->instance;
   ok($mci, '... has a Connie instance');
   is(Scalar::Util::blessed($mci), 'MyConfig', '... with the proper type');
-  is($cc->instance('MyConfig'), $mci,       '... same instance we get from Connie->instance');
+  is($cc->instance('MyConfig'),   $mci,       '... same instance we get from Connie->instance');
 
   my $mca = $cc->client($mci->app, $mci->env);
   ok($mca, 'Found App config client via app/env combo');
