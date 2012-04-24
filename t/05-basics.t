@@ -72,11 +72,11 @@ subtest 'bad register calls' => sub {
 
 subtest 'defaults' => sub {
   my $ci = Config::Connie->register(
-    app      => 'defaults_app',
+    app      => 'defaults_app1',
     env      => 'test',
-    defaults => { 'type1' => { a => 1, b => 2 } }
+    defaults => { 'type1' => { 'test' => { a => 1, b => 2 } } }
   );
-  cmp_deeply($ci->default_for('type1'), { a => 1, b => 2 }, 'Defauts via register() work');
+  cmp_deeply($ci->default_for('type1'), { a => 1, b => 2 }, 'Defaults via register() work');
 
   $ci->default_for('type1', { c => 3, d => 4 });
   cmp_deeply(
@@ -97,6 +97,22 @@ subtest 'defaults' => sub {
 
   $c->set('type1', { e => 5, f => 6 });
   cmp_deeply($c->get('type1'), { e => 5, f => 6 }, 'set()`ed values override the defaults');
+
+  $ci = Config::Connie->register(
+    app      => 'defaults_app2',
+    env      => 'test',
+    defaults => { 'type1' => { '*' => { a => 1, b => 2 } } }
+  );
+  cmp_deeply($ci->default_for('type1'), { a => 1, b => 2 }, 'Defaults for `*` env work');
+
+  $ci = Config::Connie->register(
+    app      => 'defaults_app3',
+    env      => 'test',
+    defaults => { 'type1' => { 'other' => { a => 1, b => 2 } } }
+  );
+  is($ci->default_for('type1'), undef, 'Defaults for missing env work');
+  $ci->default_for('type1', { a => 1 });
+  cmp_deeply($ci->default_for('type1'), { a => 1 }, 'Setting defaults via default_for() work');
 };
 
 

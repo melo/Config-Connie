@@ -119,9 +119,11 @@ has 'defaults' => (is => 'ro', default => sub { {} });
 sub default_for {
   my ($self, $k, $def) = @_;
   my $defs = $self->defaults;
+  my $env  = $self->env;
 
-  return $defs->{$k} = $def if defined $def;
-  return $defs->{$k} if exists $defs->{$k};
+  return $defs->{$k}{$env} = $def if defined $def;
+  return $defs->{$k}{$env} if exists $defs->{$k}{$env};
+  return $defs->{$k}{'*'}  if exists $defs->{$k}{'*'};
   return;
 }
 
