@@ -1,6 +1,7 @@
 package Config::Connie::Storage::Local;
 
-use Config::Connie::Object;
+use Moo;
+use namespace::autoclean;
 
 extends 'Config::Connie::Storage';
 

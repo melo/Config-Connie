@@ -1,6 +1,7 @@
 package Config::Connie::Storage;
 
-use Config::Connie::Object;
+use Moo;
+use namespace::autoclean;
 
 ############
 # Our client

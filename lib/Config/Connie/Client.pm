@@ -1,16 +1,17 @@
 package Config::Connie::Client;
 
-use Config::Connie::Object;
+use Moo;
+use namespace::autoclean;
 
 ##################################################
 # Our attributes: Connie instance + storage helper
 
 has 'instance' => (is => 'ro', required => 1);
 
-has 'id'      => (is => 'ro', default => sub { shift->instance->id });
-has 'app'     => (is => 'ro', default => sub { shift->instance->app });
-has 'env'     => (is => 'ro', default => sub { shift->instance->env });
-has 'storage' => (is => 'ro', default => sub { $_[0]->instance->storage($_[0]) });
+has 'id'      => (is => 'lazy', default => sub { shift->instance->id });
+has 'app'     => (is => 'lazy', default => sub { shift->instance->app });
+has 'env'     => (is => 'lazy', default => sub { shift->instance->env });
+has 'storage' => (is => 'lazy', default => sub { $_[0]->instance->storage($_[0]) });
 
 
 ############################################

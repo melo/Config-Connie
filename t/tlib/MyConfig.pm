@@ -1,6 +1,6 @@
 package MyConfig;
 
-use Config::Connie::Object;
+use Moo;
 use MyStorageHelper;
 
 extends 'Config::Connie';
@@ -14,8 +14,6 @@ sub default_app_env {'devel'}
 
 
 ## Register our client handle
-## In this example we'll use the Redis storage backend
-
 MyConfig->register(storage_builder => sub { MyStorageHelper->new(@_) });
 
 1;

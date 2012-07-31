@@ -1,6 +1,6 @@
 package MyStorageHelper;
 
-use Config::Connie::Object;
+use Moo;
 extends 'Config::Connie::Storage::Local';
 
 1;

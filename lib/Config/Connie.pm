@@ -4,18 +4,19 @@ package Config::Connie;
 # VERSION
 # AUTHORITY
 
-use Config::Connie::Object;
+use Moo;
 use Config::Connie::Client;
 use Config::Connie::Storage::Local;
 use Carp 'confess';
 use Scalar::Util 'weaken';
+use namespace::autoclean;
 
 
 #######################
 # App + Env identifiers
 
-has 'app' => (is => 'ro', default => sub { shift->default_app_name });
-has 'env' => (is => 'ro', default => sub { shift->default_app_env });
+has 'app' => (is => 'lazy', default => sub { shift->default_app_name });
+has 'env' => (is => 'lazy', default => sub { shift->default_app_env });
 
 sub default_app_name { confess "Missing attr 'app'" }
 sub default_app_env  { confess "Missing attr 'env'" }
@@ -24,7 +25,7 @@ sub default_app_env  { confess "Missing attr 'env'" }
 ###############
 # App config ID
 
-has 'id' => (is => 'ro', default => sub { my ($s) = @_; _id($s->app, $s->env) });
+has 'id' => (is => 'lazy', default => sub { my ($s) = @_; _id($s->app, $s->env) });
 
 sub _id { return join('.', @_) }
 
@@ -70,18 +71,9 @@ sub _id { return join('.', @_) }
 # Client management
 
 has '_client_cache' => (
-  is => 'ro',
-
-# FIXME: simple version that would work if Mo::weaken existed
-#  default => sub { Config::Connie::Client->new(instance => $_[0]) },
-  default => sub {
-    ### HACK HACK HACK until we have Mo::weaken
-    my $cln = Config::Connie::Client->new(instance => $_[0]);
-    weaken($cln->{instance});
-    weaken($cln->storage->{client});
-
-    return $cln;
-  }
+  is       => 'lazy',
+  weak_ref => 1,
+  default  => sub { Config::Connie::Client->new(instance => $_[0]) },
 );
 
 sub client {
