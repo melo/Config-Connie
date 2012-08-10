@@ -3,12 +3,9 @@ package Config::Connie::Storage::Local;
 use Moo;
 use namespace::autoclean;
 
-extends 'Config::Connie::Storage';
+with 'Config::Connie::Storage::Core';
 
-sub key_updated {
-  my ($self, $k, $v) = @_;
-
-  $self->client->_update_key($k => $v);
-}
+sub key_updated       { shift->instance->_cache_updated(@_) }
+sub check_for_updates { }
 
 1;
