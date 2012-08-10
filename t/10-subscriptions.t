@@ -13,13 +13,16 @@ subtest 'management' => sub {
   my $i1 = $cc->instance;
   cmp_deeply($i1->_cfg_subs, {}, 'No subscriptions, empty state');
 
-  my $s1 = $i1->subscribe('k1', sub { });
+  my $c1 = sub { };
+  my $s1 = $i1->subscribe('k1', $c1);
   ok($s1, 'Got one subscription ID');
-  my $s2 = $i1->subscribe('k1', sub { });
+
+  my $c2 = sub { };
+  my $s2 = $i1->subscribe('k1', $c2);
   ok($s2, '... and the second one');
 
-  $i1->unsubscribe($s1);
-  $i1->unsubscribe($s2);
+  is($i1->unsubscribe($s1), $c1, 'unsubscribe() s1 returns the original callback');
+  is($i1->unsubscribe($s2), $c2, '... so does s2 unsubscribe()');
   cmp_deeply($i1->_cfg_subs, { i => {}, k => {} }, 'After all unsubscribes, no more subs');
 };
 
