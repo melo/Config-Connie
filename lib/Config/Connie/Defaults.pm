@@ -3,16 +3,17 @@ package Config::Connie::Defaults;
 use Moo::Role;
 use namespace::autoclean;
 
-has 'defaults' => (is => 'ro', default => sub { {} });
+requires 'instance';
+
+has '_defaults' => (is => 'ro', default => sub { {} });
 
 sub default_for {
-  my ($self, $k, $def) = @_;
-  $self = $self->instance unless ref($self);
+  my $self = shift;
+  my $k    = shift;
+  my $d    = $self->_defaults;
 
-  my $defs = $self->defaults;
-
-  return $defs->{$k} = $def if defined $def;
-  return $defs->{$k} if exists $defs->{$k};
+  return $d->{$k} = shift if @_;
+  return $d->{$k} if exists $d->{$k};
   return;
 }
 
