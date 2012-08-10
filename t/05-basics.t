@@ -4,8 +4,6 @@ use strict;
 use warnings;
 use lib 't/tlib';
 use Test::More;
-use Test::Deep;
-use Test::Fatal;
 use T::Basic::Config;
 
 my $cc = 'T::Basic::Config';

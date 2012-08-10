@@ -4,7 +4,7 @@ use Moo;
 use namespace::autoclean;
 
 with
-  'Config::Connie::Core',
+  'Config::Connie::ID',
   'Config::Connie::Singleton',
   ;
 
