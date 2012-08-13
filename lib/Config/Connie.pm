@@ -4,129 +4,20 @@ package Config::Connie;
 # VERSION
 # AUTHORITY
 
-use Moo;
-use Config::Connie::Client;
-use Config::Connie::Storage::Local;
-use Carp 'confess';
-use Scalar::Util 'weaken';
+use Moo::Role;
 use namespace::autoclean;
 
+with
+  'Config::Connie::ID',
+  'Config::Connie::Singleton',
+  'Config::Connie::Storage',
+  'Config::Connie::Subscriptions',
+  'Config::Connie::Cache',
+  'Config::Connie::Defaults',
+  'Config::Connie::Client',
+  ;
 
-#######################
-# App + Env identifiers
-
-has 'app' => (is => 'lazy', default => sub { shift->default_app_name });
-has 'env' => (is => 'lazy', default => sub { shift->default_app_env });
-
-sub default_app_name { confess "Missing attr 'app'" }
-sub default_app_env  { confess "Missing attr 'env'" }
-
-
-###############
-# App config ID
-
-has 'id' => (is => 'lazy', default => sub { my ($s) = @_; _id($s->app, $s->env) });
-
-sub _id { return join('.', @_) }
-
-
-#######################
-# App config management
-
-{
-  my %instances;
-
-  sub register {
-    my $class = shift;
-    my $self  = $class->new(@_);
-
-    $instances{class}{$class} = $self if $class ne __PACKAGE__;
-    return $instances{id}{ $self->id } = $self;
-  }
-
-  sub instance {
-    my ($class, $app, $env) = @_;
-
-    my ($key, $bd) = @_;
-    if ($app && $env) {
-      $key = _id($app, $env);
-      $bd = $instances{id};
-    }
-    elsif ($app) {
-      $key = $app;
-      $bd  = $instances{class};
-    }
-    else {
-      $key = $class;
-      $bd  = $instances{class};
-    }
-
-    return unless exists $bd->{$key};
-    return $bd->{$key};
-  }
-}
-
-
-###################
-# Client management
-
-has '_client_cache' => (
-  is       => 'lazy',
-  weak_ref => 1,
-  default  => sub { Config::Connie::Client->new(instance => $_[0]) },
-);
-
-sub client {
-  my $self = shift;
-
-  $self = $self->instance(@_) unless ref $self;
-  return unless $self;
-
-  return $self->_client_cache;
-}
-
-
-####################
-# Storage management
-
-has 'storage_builder' => (is => 'ro');
-
-sub storage {
-  my ($self, $client) = @_;
-  my $stor = $self->storage_builder;
-
-  $stor = $stor->(client => $client) if $stor;
-  $stor = Config::Connie::Storage::Local->new(client => $client) unless $stor;
-  $stor->init;
-
-  return $stor;
-}
-
-
-#####################
-# Defaults management
-
-has 'defaults' => (is => 'ro', default => sub { {} });
-
-sub default_for {
-  my ($self, $k, $def) = @_;
-  my $defs = $self->defaults;
-  my $env  = $self->env;
-
-  return $defs->{$k}{$env} = $def if defined $def;
-  return $defs->{$k}{$env} if exists $defs->{$k}{$env};
-  return $defs->{$k}{'*'}  if exists $defs->{$k}{'*'};
-  return;
-}
-
-
-##################
-# Pool for updates
-
-sub check_for_updates {
-  shift->client->storage->check_for_updates(@_);
-}
-
+1;
 
 =encoding utf8
 
@@ -189,22 +80,19 @@ A arbitrary string.
 
 =back
 
-Each application can have multiple environments. Each application
-environment can have multiple configuration key, and each one has a
-configuration hash.
+Each application can have multiple environments. Each application environment
+can have multiple configuration key, and each one has a configuration hash.
 
 
 =head2 Components
 
 The system has two components: client and manager.
 
-Apps use a client component to access configuration keys and to listen
-for changes Connie provides utilities to manage these objects as
-singletons
+Apps use a client component to access configuration keys and to listen for
+changes Connie provides utilities to manage these objects as singletons
 
 Manager allows you to list available configuration keys, get and update them.
 
 
 =cut
 
-1;
