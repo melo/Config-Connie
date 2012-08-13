@@ -14,6 +14,6 @@ with
 
 sub default_config_id {'defaults_id'}
 
-sub build_storage { Config::Connie::Storage::Local->new(instance => shift) }
+sub build_storage_class {'Config::Connie::Storage::Local'}
 
 1;
