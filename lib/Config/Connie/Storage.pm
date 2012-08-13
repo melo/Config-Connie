@@ -1,22 +1,19 @@
 package Config::Connie::Storage;
 
-use Config::Connie::Object;
+use Moo::Role;
+use Carp ();
+use namespace::autoclean;
 
-############
-# Our client
+has 'storage' => (is => 'lazy', builder => 'build_storage', handles => ['check_for_updates']);
+has 'storage_class' => (is => 'lazy', builder => 'build_storage_class');
 
-has 'client' => (is => 'ro', required => 1);
+sub build_storage {
+  my ($self) = @_;
 
+  return $self->storage_class->new(instance => $self);
+}
 
-######################
-# Lifecycle management
+sub build_storage_class { Carp::confess "Class '" . ref(shift) . "' requires a build_storage_class method" }
 
-sub init              { }
-sub check_for_updates { }
-
-#######
-# Hooks
-
-sub key_updated { die "Class '$_[0]' needs to implement key_updated()" }
 
 1;

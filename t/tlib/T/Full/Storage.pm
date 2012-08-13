@@ -1,8 +1,9 @@
-package MyStorageIsDelayed;
+package T::Full::Storage;
 
-use Config::Connie::Object;
+use Moo;
+use namespace::autoclean;
 
-extends 'Config::Connie::Storage';
+with 'Config::Connie::Storage::Core';
 
 has '_queue' => (is => 'ro', default => sub { [] });
 
@@ -14,11 +15,11 @@ sub key_updated {
 
 sub check_for_updates {
   my ($self) = @_;
-  my $client = $self->client;
+  my $inst   = $self->instance;
   my $queue  = $self->_queue;
 
   while (my $item = pop @$queue) {
-    $client->_update_key(@$item);
+    $inst->_cache_updated(@$item);
   }
 }
 
