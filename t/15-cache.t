@@ -20,6 +20,10 @@ subtest 'basics' => sub {
   is($i->_cache_set(k1 => 42), 42, '_cache_set() returns the value we set');
   is($i->_cache_get('k1'), 42, '... _cache_get() returns the value we set');
   ok($i->_cache_exist('k1'), '... _cache_exists() returns true');
+
+  $i->_cache_set(k2 => 63);
+  $i->_cache_set(k3 => 84);
+  cmp_deeply([sort $i->_cache_keys], ['k1', 'k2', 'k3'], '_cache_keys() returns list of keys');
 };
 
 
