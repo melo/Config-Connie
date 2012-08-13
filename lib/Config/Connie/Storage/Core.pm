@@ -7,4 +7,6 @@ requires 'check_for_updates', 'key_updated';
 
 has 'instance' => (is => 'ro', weak_ref => 1, required => 1);
 
+sub init { }
+
 1;
