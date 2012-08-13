@@ -8,16 +8,20 @@ use Test::Fatal;
 use T::Storage::Config;
 
 my $cc = 'T::Storage::Config';
-my $i  = $cc->setup;
 
-ok(defined($i->{storage}),     'Has storage attribute just after setup()');
-ok($i->{storage}->init_called, '... and the init() method was called');
+subtest 'basics' => sub {
+  my $i = $cc->setup;
 
-is($i->_cache_get('k'), undef, 'key k not found');
-$i->storage->key_updated('k' => 42);
-is($i->_cache_get('k'), 42, 'key k was updated from Storage');
+  ok(defined($i->{storage}),     'Has storage attribute just after setup()');
+  ok($i->{storage}->init_called, '... and the init() method was called');
 
-ok($i->can('check_for_updates'), "method 'check_for_updates' is available");
-is(exception { $i->check_for_updates }, undef, 'check_for_updates() does not die');
+  is($i->_cache_get('k'), undef, 'key k not found');
+  $i->storage->key_updated('k' => 42);
+  is($i->_cache_get('k'), 42, 'key k was updated from Storage');
+
+  ok($i->can('check_for_updates'), "method 'check_for_updates' is available");
+  is(exception { $i->check_for_updates }, undef, 'check_for_updates() does not die');
+};
+
 
 done_testing();
