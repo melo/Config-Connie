@@ -1,4 +1,4 @@
-package Config::Connie::Storage::Local;
+package T::Local;
 
 use Moo;
 use namespace::autoclean;
