@@ -18,6 +18,8 @@ subtest 'get/set' => sub {
 
   is($i->get('here'), undef, "get() with 'here' key is undef");
   is($i->get('here', 'boo'), 'boo', "... but return local default if given");
+
+  cmp_deeply([sort $i->list], ['he'], 'list() returns list of keys');
 };
 
 

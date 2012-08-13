@@ -27,6 +27,8 @@ sub _set {
 sub set { $_[0]->_set($_[1], $_[2]) }
 sub set_now { $_[0]->_set($_[1], $_[2], 1) }
 
+sub list { $_[0]->_cache_keys }
+
 sub config {
   my ($self, $k, $cb, @rest) = @_;
 
