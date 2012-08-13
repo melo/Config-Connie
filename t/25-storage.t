@@ -24,4 +24,17 @@ subtest 'basics' => sub {
 };
 
 
+subtest 'version' => sub {
+  my $i = $cc->setup;
+
+  is($i->version, $$, 'initial version as expected');
+
+  $i->storage->key_updated(k => 42);
+  is($i->version, $$ + 1, 'version was updated');
+
+  $i->storage->key_updated(k => 42);
+  is($i->version, $$ + 2, 'version was updated again');
+};
+
+
 done_testing();

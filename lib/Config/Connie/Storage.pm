@@ -4,7 +4,7 @@ use Moo::Role;
 use Carp ();
 use namespace::autoclean;
 
-has 'storage' => (is => 'lazy', builder => 'build_storage', handles => ['check_for_updates']);
+has 'storage' => (is => 'lazy', builder => 'build_storage', handles => ['check_for_updates', 'version']);
 has 'storage_class' => (is => 'lazy', builder => 'build_storage_class');
 
 sub build_storage {
