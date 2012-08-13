@@ -15,6 +15,9 @@ subtest 'get/set' => sub {
   is($i->get('he'), undef, 'get() returns undef for unkown keys');
   is($i->set('he', 'human'), 'human', 'set() returns setted value');
   is($i->get('he'), 'human', '... and sets the value for future gets()s');
+
+  is($i->get('here'), undef, "get() with 'here' key is undef");
+  is($i->get('here', 'boo'), 'boo', "... but return local default if given");
 };
 
 

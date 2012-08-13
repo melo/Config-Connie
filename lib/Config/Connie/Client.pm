@@ -6,10 +6,13 @@ use namespace::autoclean;
 requires 'subscribe', 'storage', '_cache_get', '_cache_exist', '_cache_set', 'default_for';
 
 sub get {
-  my ($self, $k) = @_;
+  my ($self, $k, $default) = @_;
 
   return $self->_cache_get($k) if $self->_cache_exist($k);
-  return $self->default_for($k);
+
+  my $default_for = $self->default_for($k);
+  return $default_for if defined $default_for;
+  return $default;
 }
 
 sub _set {
