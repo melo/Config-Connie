@@ -10,6 +10,9 @@ use T::Storage::Config;
 my $cc = 'T::Storage::Config';
 my $i  = $cc->setup;
 
+ok(defined($i->{storage}),     'Has storage attribute just after setup()');
+ok($i->{storage}->init_called, '... and the init() method was called');
+
 is($i->_cache_get('k'), undef, 'key k not found');
 $i->storage->key_updated('k' => 42);
 is($i->_cache_get('k'), 42, 'key k was updated from Storage');

@@ -13,7 +13,12 @@ sub instance {
 sub setup {
   my $class = shift;
 
-  return $instances{$class} = $class->new(@_);
+  my $i = $instances{$class} = $class->new(@_);
+  $i->init;
+
+  return $i;
 }
+
+sub init { }
 
 1;

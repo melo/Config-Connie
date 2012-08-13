@@ -1,7 +1,7 @@
 package T::Storage::Config;
 
 use Moo;
-use Config::Connie::Storage::Local;
+use T::Storage::Local;
 use namespace::autoclean;
 
 with
@@ -14,6 +14,6 @@ with
 
 sub default_config_id {'defaults_id'}
 
-sub build_storage_class {'Config::Connie::Storage::Local'}
+sub build_storage_class {'T::Storage::Local'}
 
 1;
