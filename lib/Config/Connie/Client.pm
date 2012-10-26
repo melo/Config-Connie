@@ -32,12 +32,12 @@ sub list { $_[0]->_cache_keys }
 sub config {
   my ($self, $k, $cb, @rest) = @_;
 
-  $self->subscribe($k, $cb, @rest);
+  my $id = $self->subscribe($k, $cb, @rest);
 
   my $v = $self->get($k);
   $cb->($v, $k, $self, \@rest);
 
-  return;
+  return $id;
 }
 
 1;
