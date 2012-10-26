@@ -1,4 +1,4 @@
-package Config::Connie::Singleton;
+package Config::Connie::Registry;
 
 use Moo::Role;
 use namespace::autoclean;

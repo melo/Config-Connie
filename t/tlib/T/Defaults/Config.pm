@@ -5,7 +5,7 @@ use namespace::autoclean;
 
 with
   'Config::Connie::ID',
-  'Config::Connie::Singleton',
+  'Config::Connie::Registry',
   'Config::Connie::Defaults',
   ;
 
