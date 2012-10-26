@@ -32,6 +32,11 @@ sub list { $_[0]->_cache_keys }
 sub config {
   my ($self, $k, $cb, @rest) = @_;
 
+  if (ref($cb) ne 'CODE') {
+    $self->default_for($k, $cb);
+    $cb = shift @rest;
+  }
+
   my $id = $self->subscribe($k, $cb, @rest);
 
   my $v = $self->get($k);

@@ -125,4 +125,17 @@ subtest 'one stop shop for config' => sub {
 };
 
 
+subtest 'config + defaults' => sub {
+  my $i = $cc->setup;
+
+  my $vg;
+  my $id = $i->config('yy' => 42, sub { my ($v, undef, undef, $args) = @_; $vg = $v * $args->[0] }, 3);
+  is($vg, 126, 'config() callback called immediatly');
+  is($id, 1,   '... also, config() returns a ID');
+
+  $i->set('yy' => 3);
+  is($vg, 9, '... and after each set()');
+};
+
+
 done_testing();
